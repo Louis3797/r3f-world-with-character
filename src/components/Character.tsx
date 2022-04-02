@@ -10,13 +10,10 @@ interface Animations {
   [name: string]: { action: THREE.AnimationClip; clip: THREE.AnimationAction };
 }
 
-interface CharacterProps {
-  _camera: THREE.PerspectiveCamera;
-}
-const Character: React.FC<CharacterProps> = ({ _camera }) => {
+interface CharacterProps {}
+const Character: React.FC<CharacterProps> = () => {
   const camera = useThree((state) => state.camera);
 
-  const viewport = useThree((state) => state.viewport);
   const character = useRef<Mesh>(null!);
 
   const activeAnimation: {
