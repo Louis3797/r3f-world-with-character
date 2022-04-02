@@ -8,8 +8,6 @@ import Nature from "./components/Nature";
 function App() {
   const hlight = new THREE.HemisphereLight(0x323232, 0x000000, 4);
 
-  camera.position.set(-10, 10, -25);
-
   return (
     <div className="w-full h-screen bg-fuchsia-100">
       <Canvas
