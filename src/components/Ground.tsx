@@ -31,7 +31,7 @@ const Ground: React.FC = () => {
 
     for (let j = 0; j < hVerts; j++) {
       for (let i = 0; i < wVerts; i++) {
-        const ex = 1.3;
+        const ex = Math.random() * 1.3;
         // @ts-ignore
         pa[3 * (j * wVerts + i) + 2] =
           (simplex.noise2D(i / 100, j / 100) +
@@ -44,6 +44,7 @@ const Ground: React.FC = () => {
     }
 
     pos.needsUpdate = true;
+
     terrain.current.computeVertexNormals();
   });
 
@@ -63,19 +64,14 @@ const Ground: React.FC = () => {
         args={[1000, 1000, 250, 250]}
         ref={terrain}
       />
-      {/* <meshPhongMaterial
-        attach="material"
-        shininess={3}
-        color="#69b581"
-        flatShading
-      /> */}
-      <meshStandardMaterial
+      <meshPhongMaterial attach="material" color="#69b581" flatShading />
+      {/* <meshStandardMaterial
         map={colorMap}
         normalMap={normalMap}
         roughnessMap={roughnessMap}
         aoMap={aoMap}
         flatShading
-      />
+      /> */}
     </mesh>
   );
 };
