@@ -33,17 +33,65 @@ const Nature: React.FC = () => {
   ]);
 
   birch3.scale.setScalar(0.4);
+  birch3.traverse((o) => {
+    o.castShadow = true;
+    o.receiveShadow = true;
+  });
   birch4.scale.setScalar(0.3);
+  birch4.traverse((o) => {
+    o.castShadow = true;
+    o.receiveShadow = true;
+  });
   berry1.scale.setScalar(0.08);
+  berry1.traverse((o) => {
+    o.castShadow = true;
+    o.receiveShadow = true;
+  });
   grass2.scale.setScalar(0.05);
+  grass2.traverse((o) => {
+    o.castShadow = true;
+    o.receiveShadow = true;
+  });
   grass.scale.setScalar(0.05);
+  grass.traverse((o) => {
+    o.castShadow = true;
+    o.receiveShadow = true;
+  });
   rock1.scale.setScalar(0.2);
+  rock1.traverse((o) => {
+    o.castShadow = true;
+    o.receiveShadow = true;
+  });
   rock5.scale.setScalar(0.2);
+  rock5.traverse((o) => {
+    o.castShadow = true;
+    o.receiveShadow = true;
+  });
   willow2.scale.setScalar(0.4);
+  willow2.traverse((o) => {
+    o.castShadow = true;
+    o.receiveShadow = true;
+  });
   willow5.scale.setScalar(0.5);
+  willow5.traverse((o) => {
+    o.castShadow = true;
+    o.receiveShadow = true;
+  });
   log.scale.setScalar(0.1);
+  log.traverse((o) => {
+    o.castShadow = true;
+    o.receiveShadow = true;
+  });
   ctree3.scale.setScalar(0.4);
+  ctree3.traverse((o) => {
+    o.castShadow = true;
+    o.receiveShadow = true;
+  });
   ctree5.scale.setScalar(0.4);
+  ctree5.traverse((o) => {
+    o.castShadow = true;
+    o.receiveShadow = true;
+  });
 
   const objects: JSX.Element[] = [];
 
