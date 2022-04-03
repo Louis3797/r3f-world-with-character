@@ -54,10 +54,15 @@ A 3D world with nature objects and a character that can move around using your k
 Let the character walk, run or dance.
 
 w: Forwards
+<br />
 a: Left
+<br />
 s: Backwards
+<br />
 d: Right
+<br />
 e: Dance
+<br />
 shift + (w,a,s,d): Run
 
 ### Built With
