@@ -1,26 +1,11 @@
-import { useFrame, useLoader } from "@react-three/fiber";
 import React, { useLayoutEffect, useMemo, useRef } from "react";
 import SimplexNoise from "simplex-noise";
 import * as THREE from "three";
-import { BufferAttribute, Mesh, MeshLambertMaterial, Plane } from "three";
-import { TextureLoader } from "three/src/loaders/TextureLoader";
 
 const Ground: React.FC = () => {
   const simplex = useMemo(() => new SimplexNoise(), []);
 
-  const mesh = useRef<Mesh>(null!);
   const terrain = useRef<THREE.PlaneGeometry>(null!);
-  const [colorMap, normalMap, roughnessMap, aoMap] = useLoader(TextureLoader, [
-    "./textures/grass.png",
-    "./textures/grass_Normal.png",
-    "./textures/grass_Roughness.png",
-    "./textures/grass_Ambient_Occlusion.png",
-  ]);
-
-  colorMap.wrapS = colorMap.wrapT = THREE.RepeatWrapping;
-
-  colorMap.repeat.set(250, 250);
-  colorMap.anisotropy = 16;
 
   useLayoutEffect(() => {
     let pos = terrain.current.getAttribute("position");
@@ -48,30 +33,15 @@ const Ground: React.FC = () => {
     terrain.current.computeVertexNormals();
   });
 
-  useFrame(() => {
-    // mesh.current.rotation.x = -Math.PI / 2;
-  });
   return (
-    <mesh
-      ref={mesh}
-      position={[0, 0, 0]}
-      receiveShadow
-      castShadow
-      rotation={[-Math.PI / 2, 0, 0]}
-    >
+    <mesh position={[0, 0, 0]} receiveShadow rotation={[-Math.PI / 2, 0, 0]}>
       <planeBufferGeometry
         attach="geometry"
         args={[1000, 1000, 250, 250]}
         ref={terrain}
       />
-      <meshPhongMaterial attach="material" color="#69b581" flatShading />
-      {/* <meshStandardMaterial
-        map={colorMap}
-        normalMap={normalMap}
-        roughnessMap={roughnessMap}
-        aoMap={aoMap}
-        flatShading
-      /> */}
+
+      <meshPhongMaterial attach="material" color="#69b581" />
     </mesh>
   );
 };
