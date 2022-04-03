@@ -1,5 +1,5 @@
 import React, { Suspense } from "react";
-import { OrbitControls, softShadows } from "@react-three/drei";
+import { Loader, OrbitControls, softShadows } from "@react-three/drei";
 import { Canvas } from "@react-three/fiber";
 import Ground from "./components/Ground";
 import Character from "./components/Character";
@@ -47,9 +47,13 @@ function App() {
           <perspectiveCamera {...camera} />
           <Character camera={camera} />
           <Nature />
-          <fog attach="fog" color="#ffffff" near={50} far={300} />
         </Suspense>
+        <fog attach="fog" color="#ffffff" near={50} far={300} />
       </Canvas>
+      <Loader
+        dataInterpolation={(p) => `Loading ${p.toFixed(2)}%`}
+        initialState={(active) => active}
+      />
     </div>
   );
 }

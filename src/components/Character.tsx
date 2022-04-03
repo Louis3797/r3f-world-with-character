@@ -1,11 +1,5 @@
-import { useFrame, useLoader, useThree } from "@react-three/fiber";
-import React, {
-  Suspense,
-  useCallback,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useFrame, useLoader } from "@react-three/fiber";
+import React, { useCallback, useEffect, useRef } from "react";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { useFBX } from "@react-three/drei";
 import * as THREE from "three";
@@ -22,7 +16,6 @@ interface CharacterProps {
   camera: THREE.PerspectiveCamera;
 }
 const Character: React.FC<CharacterProps> = ({ camera }) => {
-  // const camera = useThree((state) => state.camera);
   const character = useRef<Mesh>(null!);
 
   const activeAnimation: {

@@ -1,5 +1,5 @@
 import { useLoader } from "@react-three/fiber";
-import React, { useEffect, useMemo } from "react";
+import React, { useMemo } from "react";
 import * as THREE from "three";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 
