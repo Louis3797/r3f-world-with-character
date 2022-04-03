@@ -13,7 +13,9 @@ import * as THREE from "three";
 import { Mesh } from "three";
 
 interface Animations {
-  [name: string]: { action: THREE.AnimationClip; clip: THREE.AnimationAction };
+  [name: string]: {
+    clip: THREE.AnimationAction;
+  };
 }
 
 interface CharacterProps {
@@ -42,10 +44,7 @@ const Character: React.FC<CharacterProps> = ({ camera }) => {
   const animations: Animations = {};
 
   const currentPosition = new THREE.Vector3();
-
   const currentLookAt = new THREE.Vector3();
-  const rotateAngle = new THREE.Vector3(0, 1, 0);
-  const rotateQuarternion: THREE.Quaternion = new THREE.Quaternion();
   const decceleration = new THREE.Vector3(-0.0005, -0.0001, -5.0);
   const acceleration = new THREE.Vector3(1, 0.125, 100.0);
   const velocity = new THREE.Vector3(0, 0, 0);
@@ -61,35 +60,36 @@ const Character: React.FC<CharacterProps> = ({ camera }) => {
   const mixer = new THREE.AnimationMixer(c);
 
   const idle = useFBX("./character/idle.fbx");
+
   animations["idle"] = {
-    action: idle.animations[0],
     clip: mixer.clipAction(idle.animations[0]),
   };
+
   const walk = useFBX("./character/walking.fbx");
+
   animations["walk"] = {
-    action: walk.animations[0],
     clip: mixer.clipAction(walk.animations[0]),
   };
 
   const run = useFBX("./character/running.fbx");
 
   animations["run"] = {
-    action: run.animations[0],
     clip: mixer.clipAction(run.animations[0]),
   };
+
   const dance = useFBX("./character/dance.fbx");
+
   animations["dance"] = {
-    action: dance.animations[0],
     clip: mixer.clipAction(dance.animations[0]),
   };
 
-  let currAction: THREE.AnimationAction = mixer.clipAction(
-    animations["idle"].action
-  );
+  // set current Action
+  let currAction = animations["idle"].clip;
+
   let prevAction: THREE.AnimationAction;
+
   // Controll Input
   const handleKeyPress = useCallback((event) => {
-    console.log(activeAnimation);
     switch (event.keyCode) {
       case 87: //w
         activeAnimation.forward = true;
@@ -149,32 +149,6 @@ const Character: React.FC<CharacterProps> = ({ camera }) => {
     }
   }, []);
 
-  const getDirectionOffset = (): number => {
-    var directionOffset = 0; // w
-
-    if (activeAnimation.backward) {
-      if (activeAnimation.left) {
-        directionOffset = -Math.PI / 4; // s+a
-      } else if (activeAnimation.right) {
-        directionOffset = Math.PI / 4; // s+d
-      }
-    } else if (activeAnimation.forward) {
-      if (activeAnimation.left) {
-        directionOffset = -Math.PI / 4 - Math.PI / 2; // w+a
-      } else if (activeAnimation.right) {
-        directionOffset = Math.PI / 4 + Math.PI / 2; // w+d
-      } else {
-        directionOffset = Math.PI; // w
-      }
-    } else if (activeAnimation.left) {
-      directionOffset = -Math.PI / 2; // a
-    } else if (activeAnimation.right) {
-      directionOffset = Math.PI / 2; // d
-    }
-
-    return directionOffset;
-  };
-
   const calculateIdealOffset = () => {
     const idealOffset = new THREE.Vector3(0, 20, -30);
     idealOffset.applyQuaternion(character.current.quaternion);
@@ -190,8 +164,6 @@ const Character: React.FC<CharacterProps> = ({ camera }) => {
   };
 
   function updateCameraTarget(delta: number) {
-    // move camera
-
     const idealOffset = calculateIdealOffset();
     const idealLookat = calculateIdealLookat();
 
@@ -203,43 +175,8 @@ const Character: React.FC<CharacterProps> = ({ camera }) => {
     camera.position.copy(currentPosition);
   }
 
+  // movement
   const characterState = (delta: number) => {
-    // if (
-    //   currAction === animations["walk"].clip ||
-    //   currAction === animations["run"].clip
-    // ) {
-    // const angleYCameraDirection = Math.atan2(
-    //   camera.position.x - character.current.position.x,
-    //   camera.position.z - character.current.position.z
-    // );
-    // // diagonal movement angle offset
-    // const directionOffset: number = getDirectionOffset();
-    // // rotate model
-
-    // rotateQuarternion.setFromAxisAngle(
-    //   rotateAngle,
-    //   angleYCameraDirection + directionOffset
-    // );
-
-    // character.current.quaternion.rotateTowards(rotateQuarternion, 0.2);
-    // // calculate direction
-    // camera.getWorldDirection(walkDirection);
-    // walkDirection.y = 0;
-    // walkDirection.normalize();
-
-    // walkDirection.applyAxisAngle(rotateAngle, directionOffset);
-    // // run/walk velocity
-    // const velocity = activeAnimation.run ? 0.5 : 0.2;
-    // // move model & camera delta
-    // const moveX = walkDirection.x * -velocity;
-    // const moveZ = walkDirection.z * -velocity;
-
-    // character.current.position.x += moveX;
-    // character.current.position.z += moveZ;
-
-    //   updateCameraTarget(delta);
-    // }
-
     const newVelocity = velocity;
     const frameDecceleration = new THREE.Vector3(
       newVelocity.x * decceleration.x,
@@ -356,10 +293,6 @@ const Character: React.FC<CharacterProps> = ({ camera }) => {
 
     characterState(delta);
     const idealLookat = calculateIdealLookat();
-
-    const t = 1.0 - Math.pow(0.001, delta);
-
-    currentLookAt.lerp(idealLookat, t);
 
     state.camera.lookAt(idealLookat);
     state.camera.updateProjectionMatrix();
