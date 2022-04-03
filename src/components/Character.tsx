@@ -1,5 +1,11 @@
 import { useFrame, useLoader, useThree } from "@react-three/fiber";
-import React, { Suspense, useCallback, useEffect, useRef } from "react";
+import React, {
+  Suspense,
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import { FBXLoader } from "three/examples/jsm/loaders/FBXLoader";
 import { useFBX } from "@react-three/drei";
 import * as THREE from "three";
@@ -10,10 +16,11 @@ interface Animations {
   [name: string]: { action: THREE.AnimationClip; clip: THREE.AnimationAction };
 }
 
-interface CharacterProps {}
-const Character: React.FC<CharacterProps> = () => {
-  const camera = useThree((state) => state.camera);
-
+interface CharacterProps {
+  camera: THREE.PerspectiveCamera;
+}
+const Character: React.FC<CharacterProps> = ({ camera }) => {
+  // const camera = useThree((state) => state.camera);
   const character = useRef<Mesh>(null!);
 
   const activeAnimation: {
@@ -34,13 +41,13 @@ const Character: React.FC<CharacterProps> = () => {
 
   const animations: Animations = {};
 
-  const vec = new THREE.Vector3();
-  const walkDirection = new THREE.Vector3();
+  const currentPosition = new THREE.Vector3();
+
+  const currentLookAt = new THREE.Vector3();
   const rotateAngle = new THREE.Vector3(0, 1, 0);
   const rotateQuarternion: THREE.Quaternion = new THREE.Quaternion();
-  const cameraTarget = new THREE.Vector3();
   const decceleration = new THREE.Vector3(-0.0005, -0.0001, -5.0);
-  const acceleration = new THREE.Vector3(1, 0.25, 50.0);
+  const acceleration = new THREE.Vector3(1, 0.125, 100.0);
   const velocity = new THREE.Vector3(0, 0, 0);
 
   const c = useLoader(FBXLoader, "./character/character.fbx");
@@ -86,7 +93,6 @@ const Character: React.FC<CharacterProps> = () => {
     switch (event.keyCode) {
       case 87: //w
         activeAnimation.forward = true;
-        // character.current.position.z += 0.4;
 
         break;
 
@@ -169,62 +175,136 @@ const Character: React.FC<CharacterProps> = () => {
     return directionOffset;
   };
 
-  function updateCameraTarget(moveX: number, moveZ: number, delta: number) {
+  const calculateIdealOffset = () => {
+    const idealOffset = new THREE.Vector3(0, 20, -30);
+    idealOffset.applyQuaternion(character.current.quaternion);
+    idealOffset.add(character.current.position);
+    return idealOffset;
+  };
+
+  const calculateIdealLookat = () => {
+    const idealLookat = new THREE.Vector3(0, 10, 50);
+    idealLookat.applyQuaternion(character.current.quaternion);
+    idealLookat.add(character.current.position);
+    return idealLookat;
+  };
+
+  function updateCameraTarget(delta: number) {
     // move camera
 
-    const idealOffset = new THREE.Vector3(-50, 30, -50);
-    // idealOffset.applyQuaternion(character.current.quaternion);
-    idealOffset.add(character.current.position);
+    const idealOffset = calculateIdealOffset();
+    const idealLookat = calculateIdealLookat();
 
     const t = 1.0 - Math.pow(0.001, delta);
 
-    const currlat = character.current.position;
-    const currPos = camera.position;
+    currentPosition.lerp(idealOffset, t);
+    currentLookAt.lerp(idealLookat, t);
 
-    currPos.lerp(idealOffset, t);
-
-    character.current.quaternion.rotateTowards(rotateQuarternion, 0.2);
-    camera.position.copy(currPos);
-    // camera.rotation.z = Math.PI / 2;
-    // camera.rotation.x = Math.PI / 2;
-
-    camera.lookAt(currlat);
+    camera.position.copy(currentPosition);
   }
+
   const characterState = (delta: number) => {
-    if (
-      currAction === animations["walk"].clip ||
-      currAction === animations["run"].clip
-    ) {
-      const angleYCameraDirection = Math.atan2(
-        camera.position.x - character.current.position.x,
-        camera.position.z - character.current.position.z
-      );
-      // diagonal movement angle offset
-      const directionOffset: number = getDirectionOffset();
-      // rotate model
+    // if (
+    //   currAction === animations["walk"].clip ||
+    //   currAction === animations["run"].clip
+    // ) {
+    // const angleYCameraDirection = Math.atan2(
+    //   camera.position.x - character.current.position.x,
+    //   camera.position.z - character.current.position.z
+    // );
+    // // diagonal movement angle offset
+    // const directionOffset: number = getDirectionOffset();
+    // // rotate model
 
-      rotateQuarternion.setFromAxisAngle(
-        rotateAngle,
-        angleYCameraDirection + directionOffset
-      );
+    // rotateQuarternion.setFromAxisAngle(
+    //   rotateAngle,
+    //   angleYCameraDirection + directionOffset
+    // );
 
-      character.current.quaternion.rotateTowards(rotateQuarternion, 0.2);
-      // calculate direction
-      camera.getWorldDirection(walkDirection);
-      walkDirection.y = 0;
-      walkDirection.normalize();
+    // character.current.quaternion.rotateTowards(rotateQuarternion, 0.2);
+    // // calculate direction
+    // camera.getWorldDirection(walkDirection);
+    // walkDirection.y = 0;
+    // walkDirection.normalize();
 
-      walkDirection.applyAxisAngle(rotateAngle, directionOffset);
-      // run/walk velocity
-      const velocity = activeAnimation.run ? 0.5 : 0.2;
-      // move model & cameradelta
-      const moveX = walkDirection.x * -velocity;
-      const moveZ = walkDirection.z * -velocity;
+    // walkDirection.applyAxisAngle(rotateAngle, directionOffset);
+    // // run/walk velocity
+    // const velocity = activeAnimation.run ? 0.5 : 0.2;
+    // // move model & camera delta
+    // const moveX = walkDirection.x * -velocity;
+    // const moveZ = walkDirection.z * -velocity;
 
-      character.current.position.x += moveX;
-      character.current.position.z += moveZ;
-      updateCameraTarget(moveX, moveZ, delta);
+    // character.current.position.x += moveX;
+    // character.current.position.z += moveZ;
+
+    //   updateCameraTarget(delta);
+    // }
+
+    const newVelocity = velocity;
+    const frameDecceleration = new THREE.Vector3(
+      newVelocity.x * decceleration.x,
+      newVelocity.y * decceleration.y,
+      newVelocity.z * decceleration.z
+    );
+    frameDecceleration.multiplyScalar(delta);
+    frameDecceleration.z =
+      Math.sign(frameDecceleration.z) *
+      Math.min(Math.abs(frameDecceleration.z), Math.abs(newVelocity.z));
+
+    newVelocity.add(frameDecceleration);
+
+    const controlObject = character.current;
+    const _Q = new THREE.Quaternion();
+    const _A = new THREE.Vector3();
+    const _R = controlObject.quaternion.clone();
+
+    const acc = acceleration.clone();
+    if (activeAnimation.run) {
+      acc.multiplyScalar(2.0);
     }
+
+    if (currAction === animations["dance"].clip) {
+      acc.multiplyScalar(0.0);
+    }
+
+    if (activeAnimation.forward) {
+      newVelocity.z += acc.z * delta;
+    }
+    if (activeAnimation.backward) {
+      newVelocity.z -= acc.z * delta;
+    }
+    if (activeAnimation.left) {
+      _A.set(0, 1, 0);
+      _Q.setFromAxisAngle(_A, 4.0 * Math.PI * delta * acceleration.y);
+      _R.multiply(_Q);
+    }
+    if (activeAnimation.right) {
+      _A.set(0, 1, 0);
+      _Q.setFromAxisAngle(_A, 4.0 * -Math.PI * delta * acceleration.y);
+      _R.multiply(_Q);
+    }
+
+    controlObject.quaternion.copy(_R);
+
+    const oldPosition = new THREE.Vector3();
+    oldPosition.copy(controlObject.position);
+
+    const forward = new THREE.Vector3(0, 0, 1);
+    forward.applyQuaternion(controlObject.quaternion);
+    forward.normalize();
+
+    const sideways = new THREE.Vector3(1, 0, 0);
+    sideways.applyQuaternion(controlObject.quaternion);
+    sideways.normalize();
+
+    sideways.multiplyScalar(newVelocity.x * delta);
+    forward.multiplyScalar(newVelocity.z * delta);
+
+    controlObject.position.add(forward);
+    controlObject.position.add(sideways);
+
+    character.current.position.copy(controlObject.position);
+    updateCameraTarget(delta);
   };
 
   useFrame((state, delta) => {
@@ -274,8 +354,15 @@ const Character: React.FC<CharacterProps> = () => {
       currAction.play();
     }
 
-    setTimeout(() => characterState(delta), 150);
+    characterState(delta);
+    const idealLookat = calculateIdealLookat();
 
+    const t = 1.0 - Math.pow(0.001, delta);
+
+    currentLookAt.lerp(idealLookat, t);
+
+    state.camera.lookAt(idealLookat);
+    state.camera.updateProjectionMatrix();
     mixer?.update(delta);
   });
 
