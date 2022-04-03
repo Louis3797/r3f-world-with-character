@@ -140,8 +140,6 @@ const Nature: React.FC = () => {
     }
   }, []);
 
-  useEffect(() => {}, []);
-
   return (
     <group>
       {objects.map((obj: JSX.Element) => {
