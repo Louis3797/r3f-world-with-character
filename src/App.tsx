@@ -1,11 +1,6 @@
 import React, { Suspense } from "react";
-import {
-  OrbitControls,
-  PerspectiveCamera,
-  Sky,
-  softShadows,
-} from "@react-three/drei";
-import { Canvas, useThree } from "@react-three/fiber";
+import { OrbitControls, softShadows } from "@react-three/drei";
+import { Canvas } from "@react-three/fiber";
 import Ground from "./components/Ground";
 import Character from "./components/Character";
 import * as THREE from "three";
@@ -13,7 +8,9 @@ import Nature from "./components/Nature";
 
 softShadows();
 function App() {
-  const hlight = new THREE.HemisphereLight(0x323232, 0x003300, 4);
+  const hemiLight = new THREE.HemisphereLight(0xffffff, 0xfffffff, 0.6);
+  hemiLight.color.setHSL(0.6, 1, 0.6);
+  hemiLight.groundColor.setHSL(0.095, 1, 0.75);
 
   const fov = 60;
   const aspect = 1920 / 1080;
@@ -41,9 +38,9 @@ function App() {
   return (
     <div className="w-full h-screen bg-fuchsia-100">
       <Canvas shadows camera={camera}>
-        <hemisphereLight {...hlight} />/
+        <hemisphereLight {...hemiLight} />/
         <directionalLight {...light} />
-        <ambientLight intensity={0.4} />
+        <ambientLight intensity={0.1} />
         <OrbitControls />
         <Suspense fallback={null}>
           <Ground />
