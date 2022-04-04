@@ -81,7 +81,8 @@ shift + (w,a,s,d): Run
 - Simplex Noise Floor
 - 3D Character
 - Animations: Idle, Walk, Run, Dance
-- Movement with w, a, s, d
+- Movement with w, a, s, d, shift
+- Dance with e
 - Third Person Camera
 
 <!-- GETTING STARTED -->
